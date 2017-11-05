@@ -18,7 +18,7 @@ void printUsage() {
   std::cout<<"  --numEpisodes <int>      Number of episodes to run"<<std::endl;
   std::cout<<"                           Default: 10"<<std::endl;
   std::cout<<"  --basePort <int>         SARSA agent base port"<<std::endl;
-  std::cout<<"                           Default: 60010"<<std::endl;
+  std::cout<<"                           Default: 6001"<<std::endl;
   std::cout<<"  --learnRate <float>      Learning rate of SARSA agents"<<std::endl;
   std::cout<<"                           Range: [0.0, 1.0]"<<std::endl;
   std::cout<<"                           Default: 0.1"<<std::endl;

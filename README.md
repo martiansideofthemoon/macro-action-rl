@@ -11,3 +11,11 @@ make install
 cd ../..
 make
 ````
+
+If there is an error with rcssserver, go to https://github.com/mhauskn/rcssserver and install using
+
+````
+./configure --with-boost-libdir=/usr/lib/x86_64-linux-gnu
+make
+sudo make install
+````
