@@ -197,7 +197,7 @@ int main(int argc, char **argv) {
 
   int numAgents = 0;
   int numEpisodes = 10;
-  int basePort = 6001;
+  int basePort = 6000;
   double learnR = 0.1;
   int suffix = 0;
   bool opponentPresent = true;
@@ -243,10 +243,10 @@ int main(int argc, char **argv) {
   int numTeammates = numAgents; //using goalie npc
   std::thread agentThreads[numAgents];
   for (int agent = 0; agent < numAgents; agent++) {
-    agentThreads[agent] = std::thread(offenseAgent, basePort + agent,
+    agentThreads[agent] = std::thread(offenseAgent, basePort,
                                       numTeammates, numOpponents, numEpisodes, learnR,
                                       suffix, opponentPresent, eps, step, weightid);
-    usleep(500000L);
+    sleep(5);
   }
   for (int agent = 0; agent < numAgents; agent++) {
     agentThreads[agent].join();
