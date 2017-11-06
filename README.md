@@ -19,3 +19,8 @@ If there is an error with rcssserver, go to https://github.com/mhauskn/rcssserve
 make
 sudo make install
 ````
+Then change line 67 in HFO/bin/HFO from
+
+`serverCommand = os.path.join(binary_dir, SERVER_BIN)`
+to
+`serverCommand = SERVER_BIN`
