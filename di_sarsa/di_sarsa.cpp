@@ -172,6 +172,7 @@ void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, double 
         } else {
            hfo.act(a);
         }
+        count_steps++;
         std::string s = std::to_string(action);
         for (int state_vec_fc=0; state_vec_fc < state_vec.size(); state_vec_fc++) {
             s+=std::to_string(state_vec[state_vec_fc]) + ",";
