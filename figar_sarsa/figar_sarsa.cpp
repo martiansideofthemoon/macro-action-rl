@@ -39,6 +39,7 @@ void printUsage() {
   std::cout<<"                           Default: 0"<<std::endl;
   std::cout<<"  --noOpponent             Sets opponent present flag to false"<<std::endl;
   std::cout<<"  --eps                    Sets the exploration rate"<<std::endl;
+  std::cout<<"  --lambda                 Lambda to be used in SARSA"<<std::endl;
   std::cout<<"  --numOpponents           Sets the number of opponents"<<std::endl;
   std::cout<<"  --weightId               Sets the given Id for weight File"<<std::endl;
   std::cout<<"  --help                   Displays this help and exit"<<std::endl;
@@ -94,7 +95,7 @@ hfo::action_t toAction(int action, const std::vector<float>& state_vec) {
   return a;
 }
 
-void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, double learnR,
+void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, double learnR, double lambda,
   int suffix, bool oppPres, std::vector<int> frequencies, double eps, std::string weightid) {
 
   // Number of features
@@ -106,7 +107,7 @@ void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, double 
   eps = 0.01;
   double discFac = 1;
   //double lambda=0.9375; THIS IS THE ACTUAL VALUE
-  double lambda = 0;
+  // double lambda = 0;
   // Tile coding parameter
   double resolution = 0.1;
 
@@ -233,6 +234,7 @@ int main(int argc, char **argv) {
   bool opponentPresent = true;
   int numOpponents = 0;
   double eps = 0.01;
+  double lambda = 0;
   std::string weightid;
   std::string freq_set = "1,2,4,8,16,32";
   for (int i = 0; i<argc; i++) {
@@ -259,6 +261,8 @@ int main(int argc, char **argv) {
       opponentPresent = false;
     }else if(param=="--eps"){
       eps=atoi(argv[++i]);
+    }else if(param=="--lambda"){
+        lambda=atoi(argv[++i]);
     }else if(param=="--numOpponents"){
       numOpponents=atoi(argv[++i]);
     }else if(param=="--weightId"){
@@ -277,7 +281,7 @@ int main(int argc, char **argv) {
   std::thread agentThreads[numAgents];
   for (int agent = 0; agent < numAgents; agent++) {
     agentThreads[agent] = std::thread(offenseAgent, basePort,
-      numTeammates, numOpponents, numEpisodes, learnR,
+      numTeammates, numOpponents, numEpisodes, learnR, lambda,
       suffix, opponentPresent, frequencies, eps, weightid);
     sleep(5);
   }
