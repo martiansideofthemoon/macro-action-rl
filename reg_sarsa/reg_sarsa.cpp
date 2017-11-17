@@ -46,7 +46,7 @@ double getReward(hfo::status_t status) {
 
 // Fill state with only the required features from state_vec
 void purgeFeatures(double *state, const std::vector<float>& state_vec,
-                   int numTMates, int numOpponents, bool oppPres, int pa) {
+                   int numTMates, int numOpponents, bool oppPres) {
 
   int stateIndex = 0;
 
@@ -67,21 +67,20 @@ void purgeFeatures(double *state, const std::vector<float>& state_vec,
     state[stateIndex] = state_vec[i];
     stateIndex++;
   }
-  state[stateIndex] = pa;
 }
 
 // Convert int to hfo::Action
 hfo::action_t toAction(int action, const std::vector<float>& state_vec) {
-hfo::action_t a;
+  hfo::action_t a;
   switch (action) {
-        case 0: a = hfo::MOVE; break;
-        case 1: a = hfo::REDUCE_ANGLE_TO_GOAL; break;
-        case 2: a = hfo::GO_TO_BALL; break;
-        case 3: a = hfo::NOOP; break;
-        case 4: a = hfo::DEFEND_GOAL; break;
-        default : a = hfo::MARK_PLAYER; break;
+  case 0: a = hfo::MOVE; break;
+  case 1: a = hfo::REDUCE_ANGLE_TO_GOAL; break;
+  case 2: a = hfo::GO_TO_BALL; break;
+  case 3: a = hfo::NOOP; break;
+  case 4: a = hfo::DEFEND_GOAL; break;
+  default : a = hfo::MARK_PLAYER; break;
   }
-    return a;
+  return a;
 }
 
 void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, double learnR,
@@ -89,7 +88,7 @@ void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, double 
 
   // Number of features
   int numF = oppPres ? (8 + 3 * numTMates + 2*numOpponents) : (3 + 3 * numTMates);
-  numF += 1;  // One feature for previous action
+  //numF += 1;  // One feature for previous action
   // Number of actions
   int numA = 5 + numOpponents; //DEF_GOAL+MOVE+GTB+NOOP+RATG+MP(unum)
 
@@ -105,18 +104,18 @@ void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, double 
   double min[numF];
   double res[numF];
   for(int i = 0; i < numF; i++) {
-      min[i] = -2;
-      range[i] = 3;
-      res[i] = resolution;
+    min[i] = -2;
+    range[i] = 3;
+    res[i] = resolution;
   }
 
   // Weights file
   char *wtFile;
   std::string s = "weights_" + std::to_string(port) +
-                  "_" + std::to_string(numTMates + 1) +
-                  "_" + std::to_string(suffix) +
-                  "_" + std::to_string(regReward) +
-                   "_" + weightid;
+    "_" + std::to_string(numTMates + 1) +
+    "_" + std::to_string(suffix) +
+    "_" + std::to_string(regReward) +
+    "_" + weightid;
   wtFile = &s[0u];
 
   CMAC *fa = new CMAC(numF, numA, range, min, res);
@@ -144,20 +143,6 @@ void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, double 
     while (status == hfo::IN_GAME) {
       num_steps_per_epi++;
       const std::vector<float>& state_vec = hfo.getState();
-      // if (count_steps != step && action >=0 && (a != hfo :: MARK_PLAYER ||  unum>0)) {
-      //     count_steps ++;
-      //     if (a == hfo::MARK_PLAYER) {
-      //         hfo.act(a,unum);
-      //         //std::cout << "MARKING" << unum <<"\n";
-      //     } else {
-      //         hfo.act(a);
-      //     }
-      //     status = hfo.step();
-      //     continue;
-
-      // } else {
-      //     count_steps = 0;
-      // }
 
       if(action != -1) {
         reward = getReward(status);
@@ -170,23 +155,23 @@ void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, double 
       }
 
       // Fill up state array
-      purgeFeatures(state, state_vec, numTMates, numOpponents, oppPres, prevAction);
+      purgeFeatures(state, state_vec, numTMates, numOpponents, oppPres);
 
-          // Get raw action
+      // Get raw action
       action = sa->selectAction(state);
 
       // Get hfo::Action
       a = toAction(action, state_vec);
       if (a== hfo::MARK_PLAYER) {
-           unum = state_vec[(state_vec.size()-1 - (action-5)*3)];
-           hfo.act(a,unum);
-        } else {
-           hfo.act(a);
-        }
-        std::string s = std::to_string(action);
-        for (int state_vec_fc=0; state_vec_fc < state_vec.size(); state_vec_fc++) {
-            s+=std::to_string(state_vec[state_vec_fc]) + ",";
-        }
+	unum = state_vec[(state_vec.size()-1 - (action-5)*3)];
+	hfo.act(a,unum);
+      } else {
+	hfo.act(a);
+      }
+      std::string s = std::to_string(action);
+      for (int state_vec_fc=0; state_vec_fc < state_vec.size(); state_vec_fc++) {
+	s+=std::to_string(state_vec[state_vec_fc]) + ",";
+      }
       s+="UNUM" +std::to_string(unum) +"\n";;
       status = hfo.step();
       // std::cout <<s;
@@ -217,8 +202,8 @@ int main(int argc, char **argv) {
   double eps = 0.01;
   std::string weightid;
   for (int i = 0; i<argc; i++) {
-      std::string param = std::string(argv[i]);
-      std::cout<<param<<"\n";
+    std::string param = std::string(argv[i]);
+    std::cout<<param<<"\n";
   }
   for(int i = 1; i < argc; i++) {
     std::string param = std::string(argv[i]);
@@ -245,11 +230,11 @@ int main(int argc, char **argv) {
     }else if(param == "--noOpponent") {
       opponentPresent = false;
     }else if(param=="--eps"){
-        eps=atoi(argv[++i]);
+      eps=atoi(argv[++i]);
     }else if(param=="--numOpponents"){
-        numOpponents=atoi(argv[++i]);
+      numOpponents=atoi(argv[++i]);
     }else if(param=="--weightId"){
-        weightid=std::string(argv[++i]);
+      weightid=std::string(argv[++i]);
     }else {
       printUsage();
       return 0;
