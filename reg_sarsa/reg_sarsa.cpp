@@ -104,14 +104,14 @@ void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, double 
   double range[numF];
   double min[numF];
   double res[numF];
-  for(int i = 0; i < numF - 1; i++) {
+  for(int i = 0; i < numF; i++) {
       min[i] = -1;
       range[i] = 2;
       res[i] = resolution;
   }
-  min[numF - 1] = 0;
-  range[numF - 1] = numA;
-  res[numF - 1] = resolution;
+  // min[numF - 1] = 0;
+  // range[numF - 1] = numA;
+  // res[numF - 1] = resolution;
 
   // Weights file
   char *wtFile;
