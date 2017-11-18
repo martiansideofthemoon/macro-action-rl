@@ -117,7 +117,7 @@ void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, double 
   wtFile = &s[0u];
 
   CMAC *fa = new CMAC(numF, numA, range, min, res);
-  SarsaAgent *sa = new SarsaAgent(numF, numA, learnR, eps, lambda, fa, wtFile, wtFile);
+  SarsaAgent *sa = new SarsaAgent(numF, numA, learnR, eps, lambda, fa, "", "");
 
   hfo::HFOEnvironment hfo;
   hfo::status_t status;

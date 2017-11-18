@@ -130,11 +130,11 @@ void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, double 
 
   // This is for the original action space
   CMAC *fa_action = new CMAC(numF, numA, range, min, res);
-  SarsaAgent *sa_action = new SarsaAgent(numF, numA, learnR, eps, lambda, fa_action, wtFile, wtFile);
+  SarsaAgent *sa_action = new SarsaAgent(numF, numA, learnR, eps, lambda, fa_action, "", "");
 
   // This is for the original action space
   CMAC *fa_freq = new CMAC(numF, frequencies.size(), range, min, res);
-  SarsaAgent *sa_freq = new SarsaAgent(numF, frequencies.size(), learnR, eps, lambda, fa_freq, wtFile, wtFile);
+  SarsaAgent *sa_freq = new SarsaAgent(numF, frequencies.size(), learnR, eps, lambda, fa_freq, "", "");
 
   hfo::HFOEnvironment hfo;
   hfo::status_t status;
