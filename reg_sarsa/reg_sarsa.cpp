@@ -36,7 +36,7 @@ void printUsage() {
 }
 
 // Returns the reward for SARSA based on current state
-double getReward(hfo::status_t status) {
+inline double getReward(hfo::status_t status) {
   double reward;
   if (status==hfo::GOAL) reward = -1;
   else if (status==hfo::CAPTURED_BY_DEFENSE) reward = 1;
@@ -109,11 +109,10 @@ void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, double 
       range[i] = 2;
       res[i] = resolution;
   }
-  // min[numF - 1] = 0;
-  // range[numF - 1] = numA;
-  // res[numF - 1] = resolution;
 
   // Weights file
+  //I don't see any point in saving the params to the weights file.
+  //We can gain some time by avoiding to save the params at regular intervals
   char *wtFile;
   std::string s = "weights_" + std::to_string(port) +
     "_" + std::to_string(numTMates + 1) +
@@ -121,7 +120,7 @@ void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, double 
     "_" + std::to_string(regReward) +
     "_" + weightid;
   wtFile = &s[0u];
-
+  
   CMAC *fa = new CMAC(numF, numA, range, min, res);
   SarsaAgent *sa = new SarsaAgent(numF, numA, learnR, eps, lambda, fa, wtFile, wtFile);
 
@@ -172,15 +171,8 @@ void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, double 
       } else {
 	hfo.act(a);
       }
-      std::string s = std::to_string(action);
-      for (int state_vec_fc=0; state_vec_fc < state_vec.size(); state_vec_fc++) {
-	s+=std::to_string(state_vec[state_vec_fc]) + ",";
-      }
-      s+="UNUM" +std::to_string(unum) +"\n";;
       status = hfo.step();
-      // std::cout <<s;
     }
-    // std :: cout <<":::::::::::::" << num_steps_per_epi<< " "<<"\n";
     // End of episode
     if(action != -1) {
       reward = getReward(status);

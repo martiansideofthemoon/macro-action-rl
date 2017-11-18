@@ -27,7 +27,7 @@ run_params = {
     'action_space_sarsa': [''],
     'figar_sarsa': ['']
     }
-for alg in ['di_sarsa']:
+for alg in ['figar_sarsa']:
     for lmbda in lambda_values:
         for run_param in run_params[alg]:
             counter += 1

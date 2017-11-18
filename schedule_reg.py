@@ -10,9 +10,6 @@ SEED = 1
 lambda_values = [0, 0.5, 0.8, 0.9, 0.95]
 interval_values = [1, 2, 3, 5, 9, 11, 31, 51, 81, 151]
 
-# should be one of: [conditional_figar_sarsa, di_sarsa, reg_sarsa, action_space_sarsa, figar_sarsa]
-alg = 'di_sarsa'
-
 with open(BASE_BASH, 'r') as f:
     base_script = f.read()
 
@@ -27,7 +24,7 @@ run_params = {
     'action_space_sarsa': [''],
     'figar_sarsa': ['']
     }
-for alg in ['di_sarsa']:
+for alg in ['reg_sarsa']:
     for lmbda in lambda_values:
         for run_param in run_params[alg]:
             counter += 1
@@ -35,8 +32,9 @@ for alg in ['di_sarsa']:
                 continue
             if counter % PARALLEL == 0:
                 time.sleep(3700*4)
-                
-            job_name = "%s_lmbda_%.2f_step_%s_seed_%d" % (alg, lmbda, run_param.replace(' ', '_'), SEED)
+
+            _r = run_param.replace(' ', '_').replace('--', '')
+            job_name = "%s_lmbda_%.2f_step_%s_seed_%d" % (alg, lmbda, _r, SEED)
             script = base_script.format(
                 job_name,
                 port_no,
@@ -48,5 +46,5 @@ for alg in ['di_sarsa']:
             port_no += 50
             with open('macro-action-rl/scripts/%s.sh' % job_name, 'w') as f:
                 f.write(script)
-            command = "sbatch " + 'macro-action-rl/scripts/%s.sh' % job_name
+            command = "bash -v " + 'macro-action-rl/scripts/%s.sh' % job_name
             print(subprocess.check_output(command, shell=True))
