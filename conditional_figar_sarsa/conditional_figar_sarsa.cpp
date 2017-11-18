@@ -248,7 +248,7 @@ int main(int argc, char **argv) {
   int numOpponents = 0;
   double eps = 0.01;
   std::string weightid;
-  std::string freq_set = "1,2,4,8,16,32";
+  std::string freq_set = = "1,2,3,5,9,11,31,51,81,151";
   for (int i = 0; i<argc; i++) {
     std::string param = std::string(argv[i]);
     std::cout<<param<<"\n";
