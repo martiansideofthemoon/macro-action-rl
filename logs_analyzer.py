@@ -9,17 +9,19 @@ def parse_log(fname):
     stats = []
     with open(fname, 'r') as fl:
         def_captured, oob, goals = 0, 0, 0
+        l = 0
         for line in fl.readlines():
             line = line.strip()
+            l += 1
             if not line.startswith("EndOfTrial"):
                 continue
             
             if line.find("CAPTURED_BY_DEFENSE")>=0:
-                def_captured += 1
+                def_captured += 1.
             elif line.find("OUT_OF_BOUNDS")>=0:
-                oob += 1
+                oob += 1.
             elif line.find("GOAL"):
-                goals += 1
+                goals += 1.
 
             stats += [Stat(d=def_captured, o=oob, g=goals)]
     return stats
@@ -54,6 +56,7 @@ for r in all_stats.keys():
 
 algs = set([r[:r.find("_lmbda")] for r in stat_means.keys()])
 import sys
+el = min([len(_s) for _s in stat_means.values() if len(_s)>0]) - 1
 for alg in algs:
     km = [r for r in stat_means.keys() if r.startswith(alg)]
     parameters = km[0].split('_')
@@ -66,9 +69,9 @@ for alg in algs:
         if (len(stat_means[k]) < 1):
             # sys.stderr.write ("ignoring %s\n" %k)
             continue
-        print ("|" + "|".join([parameters[i] for i in range(_st+1, len(parameters), 2)] + [str(len(stat_means[k])),
-                                                                                           '%f + %f (%d)' % (stat_means[k][-1].g/num_stats[k], math.sqrt(stat_vars[k][-1].g/num_stats[k]), num_stats[k]),
-                                                                                           '%f + %f (%d)' % ((stat_means[k][-1].o + stat_means[k][-1].d)/num_stats[k], math.sqrt((stat_vars[k][-1].o + stat_vars[k][-1].d)/num_stats[k]), num_stats[k]) + "|"
+        print ("|" + "|".join([parameters[i] for i in range(_st+1, len(parameters), 2)] + [str(el+1),
+                                                                                           '%f + %f (%d)' % (stat_means[k][el].g/num_stats[k], math.sqrt(stat_vars[k][el].g/num_stats[k]), num_stats[k]),
+                                                                                           '%f + %f (%d)' % ((stat_means[k][el].o + stat_means[k][el].d)/num_stats[k], math.sqrt((stat_vars[k][el].o + stat_vars[k][el].d)/num_stats[k]), num_stats[k]) + "|"
         ]))
         
     
