@@ -5,7 +5,7 @@ BASE_BASH = "macro-action-rl/script.sh"
 PORT_INCREMENT = 50
 BASE_PORT = 6000
 NUM_TRIALS = 150000
-SEED = 1
+SEED = 2
 
 lambda_values = [0, 0.5, 0.8, 0.9, 0.95]
 interval_values = [1, 2, 3, 5, 9, 11, 31, 51, 81, 151]
