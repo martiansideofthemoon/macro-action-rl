@@ -2,9 +2,9 @@ import subprocess
 import time
 
 BASE_BASH = "macro-action-rl/script.sh"
-PORT_INCREMENT = 50
+PORT_INCREMENT = 10
 BASE_PORT = 6000
-NUM_TRIALS = 150000
+NUM_TRIALS = 50000
 SEED = 1
 
 lambda_values = [0, 0.5, 0.8, 0.9, 0.95]
@@ -24,6 +24,8 @@ run_params = {
     'action_space_sarsa': [''],
     'figar_sarsa': ['']
     }
+
+running += 1
 for alg in ['reg_sarsa']:
     for lmbda in lambda_values:
         for run_param in run_params[alg]:
@@ -48,3 +50,4 @@ for alg in ['reg_sarsa']:
                 f.write(script)
             command = "bash -v " + 'macro-action-rl/scripts/%s.sh' % job_name
             print(subprocess.check_output(command, shell=True))
+            running -= 1
