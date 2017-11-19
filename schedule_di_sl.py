@@ -13,7 +13,7 @@ args = parser.parse_args()
 
 lambda_values = [0, 0.5, 0.8, 0.9, 0.95]
 interval_values = [1, 2, 4, 8, 16, 32]
-seeds = [1]
+seeds = [2, 5]
 NUM_TRIALS = 50000
 
 port_no = 6050
@@ -48,11 +48,16 @@ for seed in seeds:
                     counter += 1
                     s = pxssh.pxssh()
             print "SSH session login successful on sl%d-%d.cse.iitb.ac.in" % (args.sl, counter)
-            command = 'screen -S %s -d -m ./%s.sh' % (job_name, job_name)
-            print command
-            s.sendline(command)
-            s.prompt()         # match the prompt
-            print s.before     # print everything before the prompt.
+            commands = [
+                'killall screen',
+                'killall -9 rcssserver',
+                'chmod 777 %s.sh' % job_name,
+                'screen -S %s -d -m ./%s.sh' % (job_name, job_name)
+            ]
+            for command in commands:
+                print command
+                s.sendline(command)
+                s.prompt()         # match the prompt
             s.logout()
 
 # command = "scp scripts/* %s@sl%d-1.cse.iitb.ac.in:~/" % (args.user, args.sl)
