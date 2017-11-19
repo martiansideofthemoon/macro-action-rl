@@ -12,7 +12,7 @@ parser.add_argument("-p", "--prefix", type=str, help="The prefix of the scripts 
 args = parser.parse_args()
 
 import os
-SCRIPTS_FLDR = 'scripts'
+SCRIPTS_FLDR = os.path.expanduser('~/repos/macro-action-rl/scripts')
 sh_scripts = [f for f in os.listdir(SCRIPTS_FLDR) if f.startswith(args.p)]
 print ("Found %d scripts matching the prefix in the scripts folder" % len(sh_scripts))
 

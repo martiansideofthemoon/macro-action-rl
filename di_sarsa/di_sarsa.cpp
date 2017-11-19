@@ -34,7 +34,7 @@ void printUsage() {
 }
 
 // Returns the reward for SARSA based on current state
-double getReward(hfo::status_t status) {
+inline double getReward(hfo::status_t status) {
   double reward;
   if (status==hfo::GOAL) reward = -1;
   else if (status==hfo::CAPTURED_BY_DEFENSE) reward = 1;
@@ -44,8 +44,8 @@ double getReward(hfo::status_t status) {
 }
 
 // Fill state with only the required features from state_vec
-void purgeFeatures(double *state, const std::vector<float>& state_vec,
-                   int numTMates, int numOpponents, bool oppPres) {
+// The length of the state vector is 10+6*T+3*O {T is the number of opponents and O is the number of opponents}
+void selectFeatures(int* indices, int numTMates, int numOpponents, bool oppPres) {
 
   int stateIndex = 0;
 
@@ -53,23 +53,23 @@ void purgeFeatures(double *state, const std::vector<float>& state_vec,
   // and Distance from Teammate i to Opponent are absent
   int tmpIndex = oppPres ? (9 + 3 * numTMates) : (9 + 2 * numTMates);
 
-  for(int i = 0; i < state_vec.size(); i++) {
-
+  int numF = 10 + 6*numTMates + 3*numOpponents;
+  for(int i = 0; i < numF; i++) {
     // Ignore first six featues
     if(i == 5 || i==8) continue;
-    if(i>9 && i<= 9+numTMates) continue; // Ignore Goal Opening angles, as invalid
-    if(i<= 9+3*numTMates && i > 9+2*numTMates) continue; // Ignore Pass Opening angles, as invalid
+    else if(i>9 && i<= 9+numTMates) continue; // Ignore Goal Opening angles, as invalid
+    else if(i<= 9+3*numTMates && i > 9+2*numTMates) continue; // Ignore Pass Opening angles, as invalid
     // Ignore Uniform Number of Teammates and opponents
     int temp =  i-tmpIndex;
     if(temp > 0 && (temp % 3 == 0) )continue;
     //if (i > 9+6*numTMates) continue;
-    state[stateIndex] = state_vec[i];
+    indices[stateIndex] = i;
     stateIndex++;
   }
 }
 
 // Convert int to hfo::Action
-hfo::action_t toAction(int action, const std::vector<float>& state_vec) {
+inline hfo::action_t toAction(int action, const std::vector<float>& state_vec) {
 hfo::action_t a;
   switch (action) {
         case 0: a = hfo::MOVE; break;
@@ -114,7 +114,7 @@ void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, double 
                   "_" + std::to_string(suffix) +
                   "_" + std::to_string(step) +
                    "_" + weightid;
-  wtFile = &s[0u];
+		   wtFile = &s[0u];
 
   CMAC *fa = new CMAC(numF, numA, range, min, res);
   SarsaAgent *sa = new SarsaAgent(numF, numA, learnR, eps, lambda, fa, "", "");
@@ -122,13 +122,14 @@ void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, double 
   hfo::HFOEnvironment hfo;
   hfo::status_t status;
   hfo::action_t a;
+  int indices[numF];
   double state[numF];
   int action = -1;
   double reward;
   int no_of_offense = numTMates + 1;
   hfo.connectToServer(hfo::HIGH_LEVEL_FEATURE_SET,"../HFO/bin/teams/base/config/formations-dt",port,"localhost","base_right",false,"");
 
-
+  selectFeatures(indices, numTMates, numOpponents, oppPres);
   for (int episode=0; episode < numEpi; episode++) {
     int count = 0;
     status = hfo::IN_GAME;
@@ -160,9 +161,11 @@ void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, double 
       }
 
       // Fill up state array
-      purgeFeatures(state, state_vec, numTMates, numOpponents, oppPres);
-
-          // Get raw action
+      for (int i=0;i<numF;i++){
+	state[i] = state_vec[indices[i]];
+      }
+      
+      // Get raw action
       action = sa->selectAction(state);
 
       // Get hfo::Action
