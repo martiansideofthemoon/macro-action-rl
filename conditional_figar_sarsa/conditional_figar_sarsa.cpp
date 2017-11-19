@@ -97,7 +97,7 @@ hfo::action_t toAction(int action, const std::vector<float>& state_vec) {
   return a;
 }
 
-void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, double learnR,
+void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, double learnR, double lambda, 
   int suffix, bool oppPres, std::vector<int> frequencies, double eps, std::string weightid) {
 
   // Number of features
@@ -109,7 +109,6 @@ void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, double 
   eps = 0.01;
   double discFac = 1;
   //double lambda=0.9375; THIS IS THE ACTUAL VALUE
-  double lambda = 0;
   // Tile coding parameter
   double resolution = 0.1;
 
@@ -238,7 +237,7 @@ void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, double 
 }
 
 int main(int argc, char **argv) {
-
+  double lambda = 0;
   int numAgents = 0;
   int numEpisodes = 10;
   int basePort = 6000;
@@ -248,7 +247,7 @@ int main(int argc, char **argv) {
   int numOpponents = 0;
   double eps = 0.01;
   std::string weightid;
-  std::string freq_set = = "1,2,3,5,9,11,31,51,81,151";
+  std::string freq_set = "1,2,4,8,16,32,64";
   for (int i = 0; i<argc; i++) {
     std::string param = std::string(argv[i]);
     std::cout<<param<<"\n";
@@ -275,7 +274,10 @@ int main(int argc, char **argv) {
       eps=atoi(argv[++i]);
     }else if(param=="--numOpponents"){
       numOpponents=atoi(argv[++i]);
-    }else if(param=="--weightId"){
+    }else if(param=="--lambda"){
+        lambda=atoi(argv[++i]);
+    }
+    else if(param=="--weightId"){
       weightid=std::string(argv[++i]);
     }else if(param=="--freq_set"){
       freq_set=std::string(argv[++i]);
@@ -291,8 +293,8 @@ int main(int argc, char **argv) {
   std::thread agentThreads[numAgents];
   for (int agent = 0; agent < numAgents; agent++) {
     agentThreads[agent] = std::thread(offenseAgent, basePort,
-      numTeammates, numOpponents, numEpisodes, learnR,
-      suffix, opponentPresent, frequencies, eps, weightid);
+				      numTeammates, numOpponents, numEpisodes, learnR, lambda, 
+				      suffix, opponentPresent, frequencies, eps, weightid);
     sleep(5);
   }
   for (int agent = 0; agent < numAgents; agent++) {
