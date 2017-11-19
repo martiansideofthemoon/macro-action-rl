@@ -4,7 +4,6 @@
 #SBATCH -c4
 #SBATCH -o macro-action-rl/logs/client_{0}.log
 
-cd macro-action-rl
 stdbuf -oL ./HFO/bin/HFO --offense-npcs 2 --defense-npcs 1 --defense-agents 1 --port {1} --no-logging --headless --trials {4} --seed {5} > logs/server_{0}.log 2>&1 &
 PID=$!
 cd {2}

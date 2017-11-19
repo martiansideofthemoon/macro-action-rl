@@ -14,9 +14,10 @@ args = parser.parse_args()
 import os
 SCRIPTS_FLDR = os.path.expanduser('~/repos/macro-action-rl/scripts')
 sh_scripts = [f for f in os.listdir(SCRIPTS_FLDR) if f.startswith(args.p)]
-print ("Found %d scripts matching the prefix in the scripts folder" % len(sh_scripts))
+print ("Found %d scripts matching the prefix: %s in the scripts folder" % (len(sh_scripts), args.p))
 
 for sh_script in sh_scripts:
+    job_name = sh_script.split('.')[0]
     s = pxssh.pxssh()
     counter += 1
     while True:
