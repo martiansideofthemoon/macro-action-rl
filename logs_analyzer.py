@@ -42,7 +42,10 @@ for fn in fns:
     sys.stdout.write("\rRead: %d/%d logs" % (fni, len(fns)))
     sys.stdout.flush()
 sys.stdout.write("\n")
-    
+
+for jn in all_stats.keys():
+    print ("%s %d" % (jn, len(all_stats[jn])))
+
 stat_means, stat_vars = {}, {}
 num_stats = {}
 for r in all_stats.keys():
