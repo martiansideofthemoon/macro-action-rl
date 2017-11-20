@@ -23,7 +23,6 @@ void printUsage() {
   std::cout<<"                           Range: [0.0, 1.0]"<<std::endl;
   std::cout<<"                           Default: 0.1"<<std::endl;
   std::cout<<"  --regReward <float>      Penalty for changing action"<<std::endl;
-  std::cout<<"                           Range: [0.0, 1.0]"<<std::endl;
   std::cout<<"                           Default: 0.01"<<std::endl;
   std::cout<<"  --suffix <int>           Suffix for weights files"<<std::endl;
   std::cout<<"                           Default: 0"<<std::endl;
@@ -222,10 +221,6 @@ int main(int argc, char **argv) {
       }
     }else if(param == "--regReward") {
       regReward = atof(argv[++i]);
-      if(regReward < 0 || regReward > 1) {
-        printUsage();
-        return 0;
-      }
     }else if(param == "--suffix") {
       suffix = atoi(argv[++i]);
     }else if(param == "--noOpponent") {

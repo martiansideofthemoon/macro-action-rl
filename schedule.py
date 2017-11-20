@@ -18,10 +18,12 @@ with open(BASE_BASH, 'r') as f:
 
 port_no = BASE_PORT
 counter = 20
+#reg_vals = [1E-4, 0.001, 0.01, 0.1, 0.5]
+reg_vals = [1, 2]
 run_params = {
     'conditional_figar_sarsa': ['--lambda 0.5'],
     #'di_sarsa': ["--step %d" % iv for iv in interval_values],
-    'reg_sarsa': ['--lambda 0.5 --regReward %f' % _r for _r in [1E-4, 0.001, 0.01, 0.1, 0.5]],
+    'reg_sarsa': ['--lambda 0.5 --regReward %f' % _r for _r in reg_vals],
     'action_space_sarsa': ['--lambda 0.5'],
     'figar_sarsa': ['--lambda 0.5']
     }

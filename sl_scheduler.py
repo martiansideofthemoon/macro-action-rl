@@ -17,7 +17,7 @@ SCRIPTS_FLDR = os.path.expanduser('~/repos/macro-action-rl/scripts')
 sh_scripts = [f for f in os.listdir(SCRIPTS_FLDR) if f.startswith(args.p)]
 print ("Found %d scripts matching the prefix: %s in the scripts folder" % (len(sh_scripts), args.p))
 
-counter = 29
+counter = 10
 for sh_script in sh_scripts:
     job_name = sh_script[:-3]
     s = pxssh.pxssh()
