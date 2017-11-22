@@ -26,7 +26,9 @@ def parse_log(fname):
                 goals += 1.
 
             stats += [Stat(d=def_captured, o=oob, g=goals)]
-    return stats
+    if len(stats)>40000:
+        return stats
+    else: return []
 
 #LOGS_DIR = os.path.expanduser("~/sandbox/RL logs/")
 LOGS_DIR = "logs"
@@ -38,7 +40,10 @@ fni = 0
 all_stats = {}
 for fn in fns:
     fni += 1
-    all_stats[fn[:-4]] = parse_log("%s/%s" % (LOGS_DIR, fn))
+    _ = parse_log("%s/%s" % (LOGS_DIR, fn))
+    if len(_)<1:
+        continue
+    all_stats[fn[:-4]] = _
     sys.stdout.write("\rRead: %d/%d logs" % (fni, len(fns)))
     sys.stdout.flush()
 sys.stdout.write("\n")
@@ -66,6 +71,8 @@ for jn in stat_means.keys():
 for r in all_stats.keys():
     jn = re.sub(r'_seed_[0-9]+', '', r)
     _c = all_stats[r]
+    if jn not in stat_means:
+        continue
     _sm = stat_means[jn]
     if jn not in stat_vars:
         stat_vars[jn] = [Stat((_c[i].d-_sm[i].d)**2, (_c[i].o-_sm[i].o)**2, (_c[i].g-_sm[i].g)**2) for i in range(len(_sm))]

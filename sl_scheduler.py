@@ -7,7 +7,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-sl", "--sl", default=2, type=int, help="Which software lab")
 parser.add_argument("-user", "--user", default='user', type=str, help="Username")
 parser.add_argument("-password", "--password", default='pass', type=str, help="Password")
-parser.add_argument("-p", "--prefix", dest='p', type=str, help="The prefix of the scripts to run. For ex: reg_sarsa", required=True)
+parser.add_argument("-p", "--prefix", dest='p', default='', type=str, help="The prefix of the scripts to run. For ex: reg_sarsa")
 
 args = parser.parse_args()
 
