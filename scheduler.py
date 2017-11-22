@@ -4,7 +4,7 @@ from multiprocessing import Pool
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument("-p", "--prefix", dest='prefix', type=str, help="The prefix of the scripts to run. For ex: reg_sarsa", required=True)
+parser.add_argument("-p", "--prefix", dest='prefix', default="", type=str, help="The prefix of the scripts to run. For ex: reg_sarsa")
 parser.add_argument("-s", "--substr", dest='substr', default="", type=str, help="Filter script names that contain this substr. For ex: seed_1.")
 
 args = parser.parse_args()
@@ -20,5 +20,5 @@ def _r(jn):
     print (cmd)
     os.system(cmd)
 
-p = Pool(6)
+p = Pool(30)
 print (p.map(_r, job_names))

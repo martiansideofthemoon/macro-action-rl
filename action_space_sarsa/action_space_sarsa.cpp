@@ -56,26 +56,24 @@ double getReward(hfo::status_t status) {
 }
 
 // Fill state with only the required features from state_vec
-void purgeFeatures(double *state, const std::vector<float>& state_vec,
-                   int numTMates, int numOpponents, bool oppPres) {
-
+void selectFeatures(int* indices, int numTMates, int numOpponents, bool oppPres) {
   int stateIndex = 0;
 
   // If no opponents ignore features Distance to Opponent
   // and Distance from Teammate i to Opponent are absent
   int tmpIndex = oppPres ? (9 + 3 * numTMates) : (9 + 2 * numTMates);
 
-  for(int i = 0; i < state_vec.size(); i++) {
-
+  int numF = 10 + 6*numTMates + 3*numOpponents;
+  for(int i = 0; i < numF; i++) {
     // Ignore first six featues
     if(i == 5 || i==8) continue;
-    if(i>9 && i<= 9+numTMates) continue; // Ignore Goal Opening angles, as invalid
-    if(i<= 9+3*numTMates && i > 9+2*numTMates) continue; // Ignore Pass Opening angles, as invalid
+    else if(i>9 && i<= 9+numTMates) continue; // Ignore Goal Opening angles, as invalid
+    else if(i<= 9+3*numTMates && i > 9+2*numTMates) continue; // Ignore Pass Opening angles, as invalid
     // Ignore Uniform Number of Teammates and opponents
     int temp =  i-tmpIndex;
     if(temp > 0 && (temp % 3 == 0) )continue;
     //if (i > 9+6*numTMates) continue;
-    state[stateIndex] = state_vec[i];
+    indices[stateIndex] = i;
     stateIndex++;
   }
 }
@@ -96,7 +94,6 @@ hfo::action_t toAction(int action, const std::vector<float>& state_vec) {
 
 void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, double learnR, double lambda,
                   int suffix, bool oppPres, std::vector<int> frequencies, double eps, std::string weightid) {
-
   // Number of features
   int numF = oppPres ? (8 + 3 * numTMates + 2*numOpponents) : (3 + 3 * numTMates);
   // Number of actions
@@ -128,12 +125,15 @@ void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, double 
   wtFile = &s[0u];
 
   CMAC *fa = new CMAC(numF, numA, range, min, res);
-  SarsaAgent *sa = new SarsaAgent(numF, numA, learnR, eps, lambda, fa, wtFile, wtFile);
+  SarsaAgent *sa = new SarsaAgent(numF, numA, learnR, eps, lambda, fa, "", "");
 
   hfo::HFOEnvironment hfo;
   hfo::status_t status;
   hfo::action_t a;
   double state[numF];
+  int indices[numF];
+
+  selectFeatures(indices, numTMates, numOpponents, oppPres);
   int action = -1;
   int action_freq = -1;
   int step = 1;
@@ -180,7 +180,9 @@ void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, double 
       }
 
       // Fill up state array
-      purgeFeatures(state, state_vec, numTMates, numOpponents, oppPres);
+      for (int i=0;i<numF;i++){
+	state[i] = state_vec[indices[i]];
+      }
 
       // Get raw action
       int combined_action = sa->selectAction(state);

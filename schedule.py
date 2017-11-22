@@ -19,7 +19,7 @@ with open(BASE_BASH, 'r') as f:
 port_no = BASE_PORT
 counter = 20
 #reg_vals = [1E-4, 0.001, 0.01, 0.1, 0.5]
-reg_vals = [1, 2]
+reg_vals = [1, 2, 3, 4]
 run_params = {
     'conditional_figar_sarsa': ['--lambda %f' % _l for _l in lambda_values],
     #'di_sarsa': ["--step %d" % iv for iv in interval_values],
