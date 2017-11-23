@@ -18,7 +18,7 @@ def parse_log(fname):
             if not line.startswith("EndOfTrial"):
                 continue
             
-            if line.find("CAPTURED_BY_DEFENSE")>=0:
+            if line.find("CAPTURED_BY_DEFENSE")>=0 or line.find("OUT_OF_TIME")>=0:
                 def_captured += 1.
             elif line.find("OUT_OF_BOUNDS")>=0:
                 oob += 1.
@@ -30,7 +30,7 @@ def parse_log(fname):
         return stats
     else: return []
 
-#LOGS_DIR = os.path.expanduser("~/sandbox/RL logs/")
+#LOGS_DIR = os.path.expanduser("~/Downloads/RL Logs 2/")
 LOGS_DIR = "logs"
 
 # job_name->trajectory of stats
