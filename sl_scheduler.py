@@ -36,7 +36,7 @@ else:
         
 print ("Found %d scripts matching the prefix: %s in the scripts folder" % (len(sh_scripts), args.p))
 
-counter = 2
+counter = 0
 for sh_script in sh_scripts:
     job_name = sh_script[:-3]
     s = pxssh.pxssh()
@@ -52,7 +52,7 @@ for sh_script in sh_scripts:
     print ("SSH session login successful on sl%d-%d.cse.iitb.ac.in" % (args.sl, counter))
     commands = [
         'killall screen',
-        'killall -9 rcssserver && sleep 10',
+        'killall -9 rcssserver && sleep 2',
         'cd %s' % _s,
         'chmod 777 scripts/%s.sh' % job_name,
         'screen -S %s -d -m scripts/%s.sh' % (job_name, job_name)

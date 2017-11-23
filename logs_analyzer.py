@@ -94,17 +94,18 @@ for alg in algs:
     # print header
     print ("Algorithm: %s" % alg)
     _st = parameters.index('lambda')
-    print ('|' + '|'.join([parameters[i] for i in range(_st, len(parameters), 2)] + ['Number of Episodes', 'Cumm. Regret + sd', 'Cumm. Reward + sd', '%captured']) + '|')
+    print ('|' + '|'.join([parameters[i] for i in range(_st, len(parameters), 2)] + ['Number of Episodes', 'Cumm. Regret + sd', 'Cumm. Reward + sd', '%captured', '%goal']) + '|')
     for k in km:
         parameters = k.split('_')
         if (len(stat_means[k]) < 1):
             # sys.stderr.write ("ignoring %s\n" %k)
             continue
         rewd = stat_means[k][el].o + stat_means[k][el].d
+        _g = stat_means[k][el].g
         print ("|" + "|".join([parameters[i] for i in range(_st+1, len(parameters), 2)] + [str(el+1),
-                                                                                           '%f + %f (%d)' % (stat_means[k][el].g, math.sqrt(stat_vars[k][el].g), num_stats[k]),
-                                                                                           '%f + %f (%d)' % (rewd, math.sqrt((stat_vars[k][el].d+stat_vars[k][el].o)), num_stats[k]),
-                                                                                           str(rewd/(el+1))+'|'
+                                                                                           '%.3f + %.3f (%d)' % (stat_means[k][el].g, math.sqrt(stat_vars[k][el].g), num_stats[k]),
+                                                                                           '%.3f + %.3f (%d)' % (rewd, math.sqrt((stat_vars[k][el].d+stat_vars[k][el].o)), num_stats[k]),
+                                                                                           '%.3f' % (rewd/(el+1)), ('%.3f' % (_g/(el+1)))+'|'
         ]))
         
     
