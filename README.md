@@ -46,4 +46,4 @@ You will find the results in the newly created `logs` directory.
 
 ## Report
 
-You can find our final project report in `report/report.pdf`. The empirical results have been added to `report/report.org` and plots to `report/plots/`
+You can find our final project report in `report/report.pdf`. The empirical results have been added to `report/report.org` and plots to `report/plots/`.
