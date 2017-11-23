@@ -37,12 +37,13 @@ Then change line 67 in `HFO/bin/HFO` from `serverCommand = os.path.join(binary_d
 
 ## Running
 
-You can run the bash scripts in the root directory for each of the five algorithms. These scripts contain the best hyperparameter settings found in our experiments. For example,
+You can run the bash scripts in the `schedulers` directory for each of the five algorithms. These scripts contain the best hyperparameter settings found in our experiments. For example,
 ````
 mkdir logs
-./figar_sarsa.sh
+./schedulers/figar_sarsa.sh
 ````
+You will find the results in the newly created `logs` directory.
 
 ## Report
 
-You can find our final project report in `report/report.pdf`.
+You can find our final project report in `report/report.pdf`. The empirical results have been added to `report/report.org` and plots to `report/plots/`
