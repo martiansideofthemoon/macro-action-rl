@@ -26,6 +26,8 @@ cd ../..
 ./build.sh
 ````
 
+Set `server_wait_seconds` to 100 in `HFO/bin/teams/base/config/player.conf`.
+
 If there is an error with rcssserver, clone [mhauskn/rcssserver](https://github.com/mhauskn/rcssserver) and install using
 
 ````
