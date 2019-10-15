@@ -260,7 +260,7 @@ int main(int argc, char **argv) {
             return 0;
         }
     }
-    int numTeammates = numAgents; //using goalie npc
+    int numTeammates = numOpponents - 1;
     std::thread agentThreads[numAgents];
     for (int agent = 0; agent < numAgents; agent++) {
         agentThreads[agent] = std::thread(offenseAgent, basePort,

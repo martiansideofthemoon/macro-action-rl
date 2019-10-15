@@ -280,7 +280,7 @@ int main(int argc, char **argv) {
     }
 
     std::vector<int> frequencies = process_csv(freq_set);
-    int numTeammates = numAgents; //using goalie npc
+    int numTeammates = numOpponents - 1;
     std::thread agentThreads[numAgents];
     for (int agent = 0; agent < numAgents; agent++) {
         agentThreads[agent] = std::thread(offenseAgent, basePort,
