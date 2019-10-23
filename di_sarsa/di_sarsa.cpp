@@ -272,9 +272,9 @@ int main(int argc, char **argv) {
     int numTeammates = numOpponents - 1;
     std::thread agentThreads[numAgents];
     for (int agent = 0; agent < numAgents; agent++) {
-        agentThreads[agent] = std::thread(offenseAgent, basePort + agent,
+        agentThreads[agent] = std::thread(offenseAgent, basePort,
                                           numTeammates, numOpponents, numEpisodes, numEpisodesTest, learnR, lambda,
-                                          suffix, opponentPresent, eps, step, weightid);
+                                          agent, opponentPresent, eps, step, weightid);
         sleep(5);
     }
     for (int agent = 0; agent < numAgents; agent++) {
