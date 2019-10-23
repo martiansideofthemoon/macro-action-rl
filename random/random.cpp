@@ -22,6 +22,7 @@ void printUsage() {
     std::cout << "  --basePort <int>         SARSA agent base port" << std::endl;
     std::cout << "                           Default: 6001" << std::endl;
     std::cout << "  --numOpponents           Sets the number of opponents" << std::endl;
+    std::cout << "  --step                   Sets the persistent step size" << std::endl;
     std::cout << "  --help                   Displays this help and exit" << std::endl;
 }
 
@@ -51,7 +52,7 @@ inline hfo::action_t toAction(int action, const std::vector<float>& state_vec) {
     return a;
 }
 
-void offenseAgent(int port, int numOpponents, int numEpi, int numEpiTest) {
+void offenseAgent(int port, int numOpponents, int numEpi, int numEpiTest, int step) {
 
     // Number of actions
     int numA = 5 + numOpponents; //DEF_GOAL+MOVE+GTB+NOOP+RATG+MP(unum)
@@ -65,9 +66,24 @@ void offenseAgent(int port, int numOpponents, int numEpi, int numEpiTest) {
     for (int episode = 0; episode < (numEpi + numEpiTest); episode++) {
         status = hfo::IN_GAME;
         action = -1;
+        int count_steps = 0;
         double unum = -1;
         while (status == hfo::IN_GAME) {
             const std::vector<float>& state_vec = hfo.getState();
+            if (count_steps != step && action >= 0 && (a != hfo :: MARK_PLAYER ||  unum > 0)) {
+                count_steps ++;
+                if (a == hfo::MARK_PLAYER) {
+                    hfo.act(a, unum);
+                    //std::cout << "MARKING" << unum <<"\n";
+                } else {
+                    hfo.act(a);
+                }
+                status = hfo.step();
+                continue;
+
+            } else {
+                count_steps = 0;
+            }
 
             // Get raw action
             action = (int)(drand48() * numA) % numA;
@@ -80,6 +96,7 @@ void offenseAgent(int port, int numOpponents, int numEpi, int numEpiTest) {
             } else {
                 hfo.act(a);
             }
+            count_steps++;
             status = hfo.step();
         }
     }
@@ -92,6 +109,7 @@ int main(int argc, char **argv) {
     int numEpisodesTest = 10;
     int basePort = 6000;
     int numOpponents = 0;
+    int step = 10;
     for (int i = 0; i < argc; i++) {
         std::string param = std::string(argv[i]);
         std::cout << param << "\n";
@@ -108,15 +126,16 @@ int main(int argc, char **argv) {
             basePort = atoi(argv[++i]);
         } else if(param == "--numOpponents") {
             numOpponents = atoi(argv[++i]);
+        } else if(param == "--step") {
+            step = atoi(argv[++i]);
         } else {
             printUsage();
             return 0;
         }
     }
-    int numTeammates = numOpponents - 1;
     std::thread agentThreads[numAgents];
     for (int agent = 0; agent < numAgents; agent++) {
-        agentThreads[agent] = std::thread(offenseAgent, basePort, numOpponents, numEpisodes, numEpisodesTest);
+        agentThreads[agent] = std::thread(offenseAgent, basePort, numOpponents, numEpisodes, numEpisodesTest, step);
         sleep(5);
     }
     for (int agent = 0; agent < numAgents; agent++) {

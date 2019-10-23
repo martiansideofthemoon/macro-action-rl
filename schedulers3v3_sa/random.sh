@@ -7,7 +7,7 @@ PID=$!
 cd random
 sleep 5
 
-./random --numAgents 1 --numOpponents 3 --numEpisodes 0 --numEpisodesTest 2000 --basePort 7300
+./random --numAgents 1 --numOpponents 3 --numEpisodes 0 --numEpisodesTest 2000 --basePort 7300 --step 32
 
 kill -SIGINT $PID
 sleep 5
