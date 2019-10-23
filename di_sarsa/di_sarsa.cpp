@@ -205,7 +205,9 @@ void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, int num
         // End of episode
         if(action != -1) {
             reward = getReward(status);
-            sa->update(state, action, reward, discFac);
+            if (episode < numEpi) {
+                sa->update(state, action, reward, discFac);
+            }
             sa->endEpisode();
         }
     }

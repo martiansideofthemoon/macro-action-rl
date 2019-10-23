@@ -30,6 +30,8 @@ void printUsage() {
     std::cout << "                           Default: 0" << std::endl;
     std::cout << "  --numEpisodes <int>      Number of episodes to run" << std::endl;
     std::cout << "                           Default: 10" << std::endl;
+    std::cout << "  --numEpisodesTest <int>  Number of episodes to test" << std::endl;
+    std::cout << "                           Default: 10" << std::endl;
     std::cout << "  --basePort <int>         SARSA agent base port" << std::endl;
     std::cout << "                           Default: 6001" << std::endl;
     std::cout << "  --learnRate <float>      Learning rate of SARSA agents" << std::endl;
@@ -106,7 +108,7 @@ hfo::action_t toAction(int action, const std::vector<float>& state_vec) {
     return a;
 }
 
-void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, double learnR, double lambda,
+void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, int numEpiTest, double learnR, double lambda,
                   int suffix, bool oppPres, std::vector<int> frequencies, double eps, std::string weightid) {
 
     // Number of features
@@ -132,20 +134,25 @@ void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, double 
     }
 
     // Weights file
-    char *wtFile;
-    std::string s = "weights_" + std::to_string(port) +
+    char *wtFile1, *wtFile2;
+    std::string s1 = "weights_act_" + std::to_string(port) +
                     "_" + std::to_string(numTMates + 1) +
                     "_" + std::to_string(suffix) +
                     "_" + weightid;
-    wtFile = &s[0u];
+    std::string s2 = "weights_freq_" + std::to_string(port) +
+                    "_" + std::to_string(numTMates + 1) +
+                    "_" + std::to_string(suffix) +
+                    "_" + weightid;
+    wtFile1 = &s1[0u];
+    wtFile2 = &s2[0u];
 
     // This is for the original action space
     CMAC *fa_action = new CMAC(numF, numA, range, min, res);
-    SarsaAgent *sa_action = new SarsaAgent(numF, numA, learnR, eps, lambda, fa_action, "", "");
+    SarsaAgent *sa_action = new SarsaAgent(numF, numA, learnR, eps, lambda, fa_action, wtFile1, wtFile1);
 
     // This is for the original action space
     CMAC *fa_freq = new CMAC(numF, frequencies.size(), range, min, res);
-    SarsaAgent *sa_freq = new SarsaAgent(numF, frequencies.size(), learnR, eps, lambda, fa_freq, "", "");
+    SarsaAgent *sa_freq = new SarsaAgent(numF, frequencies.size(), learnR, eps, lambda, fa_freq, wtFile2, wtFile2);
 
     hfo::HFOEnvironment hfo;
     hfo::status_t status;
@@ -161,7 +168,7 @@ void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, double 
     hfo.connectToServer(hfo::HIGH_LEVEL_FEATURE_SET, "../HFO/bin/teams/base/config/formations-dt", port, "localhost", "base_right", false, "");
 
 
-    for (int episode = 0; episode < numEpi; episode++) {
+    for (int episode = 0; episode < (numEpi + numEpiTest); episode++) {
         int count = 0;
         status = hfo::IN_GAME;
         action = -1;
@@ -194,8 +201,10 @@ void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, double 
 
             if(action != -1 && action_freq != -1) {
                 reward = getReward(status);
-                sa_action->update(state, action, reward, discFac);
-                sa_freq->update(state, action_freq, reward, discFac);
+                if (episode < numEpi) {
+                    sa_action->update(state, action, reward, discFac);
+                    sa_freq->update(state, action_freq, reward, discFac);
+                }
             }
 
             // Fill up state array
@@ -227,11 +236,11 @@ void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, double 
         // End of episode
         if(action != -1) {
             reward = getReward(status);
-            // Action SARSA update
-            sa_action->update(state, action, reward, discFac);
+            if (episode < numEpi) {
+                sa_action->update(state, action, reward, discFac);
+                sa_freq->update(state, action_freq, reward, discFac);
+            }
             sa_action->endEpisode();
-            // Frequency SARSA update
-            sa_freq->update(state, action_freq, reward, discFac);
             sa_freq->endEpisode();
         }
     }
@@ -245,6 +254,7 @@ int main(int argc, char **argv) {
 
     int numAgents = 0;
     int numEpisodes = 10;
+    int numEpisodesTest = 10;
     int basePort = 6000;
     double learnR = 0.1;
     int suffix = 0;
@@ -264,6 +274,8 @@ int main(int argc, char **argv) {
             numAgents = atoi(argv[++i]);
         } else if(param == "--numEpisodes") {
             numEpisodes = atoi(argv[++i]);
+        } else if(param == "--numEpisodesTest") {
+            numEpisodesTest = atoi(argv[++i]);
         } else if(param == "--basePort") {
             basePort = atoi(argv[++i]);
         } else if(param == "--learnRate") {
@@ -297,8 +309,8 @@ int main(int argc, char **argv) {
     int numTeammates = numOpponents - 1;
     std::thread agentThreads[numAgents];
     for (int agent = 0; agent < numAgents; agent++) {
-        agentThreads[agent] = std::thread(offenseAgent, basePort,
-                                          numTeammates, numOpponents, numEpisodes, learnR, lambda,
+        agentThreads[agent] = std::thread(offenseAgent, basePort + agent,
+                                          numTeammates, numOpponents, numEpisodes, numEpisodesTest, learnR, lambda,
                                           suffix, opponentPresent, frequencies, eps, weightid);
         sleep(5);
     }
