@@ -17,6 +17,8 @@ void printUsage() {
     std::cout << "                           Default: 0" << std::endl;
     std::cout << "  --numEpisodes <int>      Number of episodes to run" << std::endl;
     std::cout << "                           Default: 10" << std::endl;
+    std::cout << "  --numEpisodesTest <int>  Number of episodes to test" << std::endl;
+    std::cout << "                           Default: 10" << std::endl;
     std::cout << "  --basePort <int>         SARSA agent base port" << std::endl;
     std::cout << "                           Default: 6001" << std::endl;
     std::cout << "  --learnRate <float>      Learning rate of SARSA agents" << std::endl;
@@ -94,7 +96,7 @@ inline hfo::action_t toAction(int action, const std::vector<float>& state_vec) {
     return a;
 }
 
-void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, double learnR, double lambda,
+void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, int numEpiTest, double learnR, double lambda,
                   int suffix, bool oppPres, double eps, int step, std::string weightid) {
 
     // Number of features
@@ -129,7 +131,7 @@ void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, double 
     wtFile = &s[0u];
 
     CMAC *fa = new CMAC(numF, numA, range, min, res);
-    SarsaAgent *sa = new SarsaAgent(numF, numA, learnR, eps, lambda, fa, "", "");
+    SarsaAgent *sa = new SarsaAgent(numF, numA, learnR, eps, lambda, fa, wtFile, wtFile);
 
     hfo::HFOEnvironment hfo;
     hfo::status_t status;
@@ -142,7 +144,7 @@ void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, double 
     hfo.connectToServer(hfo::HIGH_LEVEL_FEATURE_SET, "../HFO/bin/teams/base/config/formations-dt", port, "localhost", "base_right", false, "");
 
     selectFeatures(indices, numTMates, numOpponents, oppPres);
-    for (int episode = 0; episode < numEpi; episode++) {
+    for (int episode = 0; episode < (numEpi + numEpiTest); episode++) {
         int count = 0;
         status = hfo::IN_GAME;
         action = -1;
@@ -169,7 +171,9 @@ void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, double 
 
             if(action != -1) {
                 reward = getReward(status);
-                sa->update(state, action, reward, discFac);
+                if (episode < numEpi) {
+                    sa->update(state, action, reward, discFac);
+                }
             }
 
             // Fill up state array
@@ -214,6 +218,7 @@ int main(int argc, char **argv) {
 
     int numAgents = 0;
     int numEpisodes = 10;
+    int numEpisodesTest = 10;
     int basePort = 6000;
     double learnR = 0.1;
     int suffix = 0;
@@ -233,6 +238,8 @@ int main(int argc, char **argv) {
             numAgents = atoi(argv[++i]);
         } else if(param == "--numEpisodes") {
             numEpisodes = atoi(argv[++i]);
+        } else if(param == "--numEpisodesTest") {
+            numEpisodesTest = atoi(argv[++i]);
         } else if(param == "--basePort") {
             basePort = atoi(argv[++i]);
         } else if(param == "--learnRate") {
@@ -263,8 +270,8 @@ int main(int argc, char **argv) {
     int numTeammates = numOpponents - 1;
     std::thread agentThreads[numAgents];
     for (int agent = 0; agent < numAgents; agent++) {
-        agentThreads[agent] = std::thread(offenseAgent, basePort,
-                                          numTeammates, numOpponents, numEpisodes, learnR, lambda,
+        agentThreads[agent] = std::thread(offenseAgent, basePort + agent,
+                                          numTeammates, numOpponents, numEpisodes, numEpisodesTest, learnR, lambda,
                                           suffix, opponentPresent, eps, step, weightid);
         sleep(5);
     }
