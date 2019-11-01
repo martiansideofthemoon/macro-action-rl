@@ -66,7 +66,7 @@ for r in all_stats.keys():
     jn = re.sub(r'_seed_[0-9]+', '', r)
     stat = all_stats[r][-1]
     # rewd = (sum(_ds) + sum(_os))/sum(_gs)
-    rewd = (stat.d + stat.o)/stat.g
+    rewd = (stat.d + stat.o)/(stat.g + stat.d + stat.o)
     rewards_per_config[jn] = rewards_per_config.get(jn, []) + [rewd]
     
     if jn not in stat_means:
