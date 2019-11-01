@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import re
 import math
 import sys
+import numpy as np
 from multiprocessing import Pool
 
 Stat = namedtuple('Stat', ['d', 'o', 'g'])
@@ -12,10 +13,17 @@ def parse_log(fname):
     with open(fname, 'r') as fl:
         def_captured, oob, goals = 0, 0, 0
         l = 0
+        test_start = False
         for line in fl.readlines():
             line = line.strip()
             l += 1
             if not line.startswith("EndOfTrial"):
+                continue
+
+            if line.find(" / 50000 ") >= 0:
+                test_start = True
+                continue
+            if not test_start:
                 continue
             
             if line.find("CAPTURED_BY_DEFENSE")>=0 or line.find("OUT_OF_TIME")>=0:
@@ -26,7 +34,7 @@ def parse_log(fname):
                 goals += 1.
 
             stats += [Stat(d=def_captured, o=oob, g=goals)]
-    if len(stats)>40000:
+    if len(stats)>1900:
         return stats
     else: return []
 
@@ -52,9 +60,15 @@ for jn in all_stats.keys():
     print ("%s %d" % (jn, len(all_stats[jn])))
 
 stat_means, stat_vars = {}, {}
+rewards_per_config = {}
 num_stats = {}
 for r in all_stats.keys():
     jn = re.sub(r'_seed_[0-9]+', '', r)
+    stat = all_stats[r][-1]
+    # rewd = (sum(_ds) + sum(_os))/sum(_gs)
+    rewd = (stat.d + stat.o)/stat.g
+    rewards_per_config[jn] = rewards_per_config.get(jn, []) + [rewd]
+    
     if jn not in stat_means:
         stat_means[jn] = all_stats[r]
         num_stats[jn] = 1.
@@ -63,11 +77,13 @@ for r in all_stats.keys():
         _o, _c = stat_means[jn], all_stats[r]
         stat_means[jn] = [Stat(_o[i].d+_c[i].d, _o[i].o+_c[i].o, _o[i].g+_c[i].g) for i in range(min(len(_o), len(_c)))]
 
+for k in rewards_per_config.keys():
+    rewards_per_config[k] = np.array(rewards_per_config[k])
+        
 for jn in stat_means.keys():
     _sm = stat_means[jn]
     _n = num_stats[jn]
     stat_means[jn] = [Stat(d=_sm[i].d/_n, o=_sm[i].o/_n, g=_sm[i].g/_n) for i in range(len(_sm))]
-        
 for r in all_stats.keys():
     jn = re.sub(r'_seed_[0-9]+', '', r)
     _c = all_stats[r]
@@ -104,8 +120,8 @@ for alg in algs:
         _g = stat_means[k][el].g
         print ("|" + "|".join([parameters[i] for i in range(_st+1, len(parameters), 2)] + [str(el+1),
                                                                                            '%.3f + %.3f (%d)' % (stat_means[k][el].g, math.sqrt(stat_vars[k][el].g), num_stats[k]),
-                                                                                           '%.3f + %.3f (%d)' % (rewd, math.sqrt((stat_vars[k][el].d+stat_vars[k][el].o)), num_stats[k]),
-                                                                                           '%.3f' % (rewd/(el+1)), ('%.3f' % (_g/(el+1)))+'|'
+                                                                                           '%.3f (%d)' % (rewd, num_stats[k]),
+                                                                                           '%.3f (%.3f)' % (np.mean(rewards_per_config[k]), np.std(rewards_per_config[k])), ('%.3f' % (_g/(el+1)))+'|'
         ]))
         
     
