@@ -122,19 +122,8 @@ void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, int num
         res[i] = resolution;
     }
 
-    // Weights file
-    //I don't see any point in saving the params to the weights file.
-    //We can gain some time by avoiding to save the params at regular intervals
-    char *wtFile;
-    std::string s = "weights_" + std::to_string(port) +
-                    "_" + std::to_string(numTMates + 1) +
-                    "_" + std::to_string(suffix) +
-                    "_" + std::to_string(regReward) +
-                    "_" + weightid;
-    wtFile = &s[0u];
-
     CMAC *fa = new CMAC(numF, numA, range, min, res);
-    SarsaAgent *sa = new SarsaAgent(numF, numA, learnR, eps, lambda, fa, wtFile, wtFile);
+    SarsaAgent *sa = new SarsaAgent(numF, numA, learnR, eps, lambda, fa, "", "");
 
     hfo::HFOEnvironment hfo;
     hfo::status_t status;
@@ -151,6 +140,14 @@ void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, int num
 
     selectFeatures(indices, numTMates, numOpponents, oppPres);
     for (int episode = 0; episode < (numEpi + numEpiTest); episode++) {
+        if ((episode + 1) % 5000 == 0) {
+            // Weights file
+            char *wtFile;
+            std::string s = "weights_" + std::to_string(suffix) +
+                            "_" + weightid + "_episode_" + std::to_string(episode + 1);
+            wtFile = &s[0u];
+            sa -> saveWeights(wtFile);
+        }
         // int count = 0;
         status = hfo::IN_GAME;
         action = -1;

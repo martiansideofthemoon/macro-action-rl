@@ -133,26 +133,13 @@ void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, int num
         res[i] = resolution;
     }
 
-    // Weights file
-    char *wtFile1, *wtFile2;
-    std::string s1 = "weights_act_" + std::to_string(port) +
-                    "_" + std::to_string(numTMates + 1) +
-                    "_" + std::to_string(suffix) +
-                    "_" + weightid;
-    std::string s2 = "weights_freq_" + std::to_string(port) +
-                    "_" + std::to_string(numTMates + 1) +
-                    "_" + std::to_string(suffix) +
-                    "_" + weightid;
-    wtFile1 = &s1[0u];
-    wtFile2 = &s2[0u];
-
     // This is for the original action space
     CMAC *fa_action = new CMAC(numF, numA, range, min, res);
-    SarsaAgent *sa_action = new SarsaAgent(numF, numA, learnR, eps, lambda, fa_action, wtFile1, wtFile1);
+    SarsaAgent *sa_action = new SarsaAgent(numF, numA, learnR, eps, lambda, fa_action, "", "");
 
     // This is for the original action space
     CMAC *fa_freq = new CMAC(numF, frequencies.size(), range, min, res);
-    SarsaAgent *sa_freq = new SarsaAgent(numF, frequencies.size(), learnR, eps, lambda, fa_freq, wtFile2, wtFile2);
+    SarsaAgent *sa_freq = new SarsaAgent(numF, frequencies.size(), learnR, eps, lambda, fa_freq, "", "");
 
     hfo::HFOEnvironment hfo;
     hfo::status_t status;
@@ -169,6 +156,18 @@ void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, int num
 
 
     for (int episode = 0; episode < (numEpi + numEpiTest); episode++) {
+        if ((episode + 1) % 5000 == 0) {
+            // Weights file
+            char *wtFile1, *wtFile2;
+            std::string s1 = "weights_act_" + std::to_string(suffix) +
+                            "_" + weightid + "_episode_" + std::to_string(episode + 1);
+            std::string s2 = "weights_freq_" + std::to_string(suffix) +
+                            "_" + weightid + "_episode_" + std::to_string(episode + 1);
+            wtFile1 = &s1[0u];
+            wtFile2 = &s2[0u];
+            sa_action -> saveWeights(wtFile1);
+            sa_freq -> saveWeights(wtFile2);
+        }
         int count = 0;
         status = hfo::IN_GAME;
         action = -1;
