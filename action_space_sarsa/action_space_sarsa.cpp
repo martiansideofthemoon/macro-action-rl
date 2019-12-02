@@ -42,6 +42,7 @@ void printUsage() {
     std::cout << "  --noOpponent             Sets opponent present flag to false" << std::endl;
     std::cout << "  --eps                    Sets the exploration rate" << std::endl;
     std::cout << "  --numOpponents           Sets the number of opponents" << std::endl;
+    std::cout << "  --load                   If set, load weights from specified weight file" << std::endl;
     std::cout << "  --weightId               Sets the given Id for weight File" << std::endl;
     std::cout << "  --help                   Displays this help and exit" << std::endl;
     std::cout << "  --freq_set               comma separated list of frequencies" << std::endl;
@@ -107,7 +108,7 @@ hfo::action_t toAction(int action, const std::vector<float>& state_vec) {
 }
 
 void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, int numEpiTest, double learnR, double lambda,
-                  int suffix, bool oppPres, std::vector<int> frequencies, double eps, std::string weightid) {
+                  int suffix, bool oppPres, std::vector<int> frequencies, double eps, bool load, std::string weightid) {
     // Number of features
     int numF = oppPres ? (8 + 3 * numTMates + 2 * numOpponents) : (3 + 3 * numTMates);
     // Number of actions
@@ -130,7 +131,11 @@ void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, int num
     }
 
     CMAC *fa = new CMAC(numF, numA, range, min, res);
-    SarsaAgent *sa = new SarsaAgent(numF, numA, learnR, eps, lambda, fa, "", "");
+    char *loadWtFile;
+    std::string s = load ? ("weights_" + std::to_string(suffix) +
+                            "_" + weightid) : "";
+    loadWtFile = &s[0u];
+    SarsaAgent *sa = new SarsaAgent(numF, numA, learnR, eps, lambda, fa, loadWtFile, "");
 
     hfo::HFOEnvironment hfo;
     hfo::status_t status;
@@ -245,6 +250,7 @@ int main(int argc, char **argv) {
     int numOpponents = 0;
     double eps = 0.01;
     double lambda = 0;
+    bool load = false;
     std::string weightid;
     std::string freq_set = "1,2,4,8,16,32,64";
     for (int i = 0; i < argc; i++) {
@@ -277,6 +283,8 @@ int main(int argc, char **argv) {
             numOpponents = atoi(argv[++i]);
         } else if(param == "--lambda") {
             lambda = atoi(argv[++i]);
+        } else if(param == "--load") {
+            load = true;
         } else if(param == "--weightId") {
             weightid = std::string(argv[++i]);
         } else if(param == "--freq_set") {
@@ -293,7 +301,7 @@ int main(int argc, char **argv) {
     for (int agent = 0; agent < numAgents; agent++) {
         agentThreads[agent] = std::thread(offenseAgent, basePort,
                                           numTeammates, numOpponents, numEpisodes, numEpisodesTest, learnR, lambda,
-                                          agent, opponentPresent, frequencies, eps, weightid);
+                                          agent, opponentPresent, frequencies, eps, load, weightid);
         sleep(5);
     }
     for (int agent = 0; agent < numAgents; agent++) {

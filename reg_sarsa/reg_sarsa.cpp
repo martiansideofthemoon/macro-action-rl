@@ -32,6 +32,7 @@ void printUsage() {
     std::cout << "  --eps                    Sets the exploration rate" << std::endl;
     std::cout << "  --lambda                 Lambda to be used in SARSA" << std::endl;
     std::cout << "  --numOpponents           Sets the number of opponents" << std::endl;
+    std::cout << "  --load                   If set, load weights from specified weight file" << std::endl;
     std::cout << "  --weightId               Sets the given Id for weight File" << std::endl;
     std::cout << "  --help                   Displays this help and exit" << std::endl;
 }
@@ -97,7 +98,7 @@ hfo::action_t toAction(int action, const std::vector<float>& state_vec) {
 }
 
 void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, int numEpiTest, double learnR, double lambda,
-                  double regReward, int suffix, bool oppPres, double eps, std::string weightid) {
+                  double regReward, int suffix, bool oppPres, double eps, bool load, std::string weightid) {
 
     // Number of features
     int numF = oppPres ? (8 + 3 * numTMates + 2 * numOpponents) : (3 + 3 * numTMates);
@@ -123,7 +124,11 @@ void offenseAgent(int port, int numTMates, int numOpponents, int numEpi, int num
     }
 
     CMAC *fa = new CMAC(numF, numA, range, min, res);
-    SarsaAgent *sa = new SarsaAgent(numF, numA, learnR, eps, lambda, fa, "", "");
+    char *loadWtFile;
+    std::string s = load ? ("weights_" + std::to_string(suffix) +
+                            "_" + weightid) : "";
+    loadWtFile = &s[0u];
+    SarsaAgent *sa = new SarsaAgent(numF, numA, learnR, eps, lambda, fa, loadWtFile, "");
 
     hfo::HFOEnvironment hfo;
     hfo::status_t status;
@@ -216,6 +221,7 @@ int main(int argc, char **argv) {
     int numOpponents = 0;
     double eps = 0.01;
     double lambda = 0.0;
+    bool load = false;
     std::string weightid;
     for (int i = 0; i < argc; i++) {
         std::string param = std::string(argv[i]);
@@ -249,6 +255,8 @@ int main(int argc, char **argv) {
             lambda = atoi(argv[++i]);
         } else if(param == "--numOpponents") {
             numOpponents = atoi(argv[++i]);
+        } else if(param == "--load") {
+            load = true;
         } else if(param == "--weightId") {
             weightid = std::string(argv[++i]);
         } else {
@@ -261,7 +269,7 @@ int main(int argc, char **argv) {
     for (int agent = 0; agent < numAgents; agent++) {
         agentThreads[agent] = std::thread(offenseAgent, basePort,
                                           numTeammates, numOpponents, numEpisodes, numEpisodesTest, learnR, lambda,
-                                          regReward, agent, opponentPresent, eps, weightid);
+                                          regReward, agent, opponentPresent, eps, load, weightid);
         sleep(5);
     }
     for (int agent = 0; agent < numAgents; agent++) {
