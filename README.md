@@ -39,12 +39,14 @@ Then change line 67 in `HFO/bin/HFO` from `serverCommand = os.path.join(binary_d
 
 ## Running
 
-You can run the bash scripts in the `schedulers` directory for each of the five algorithms. These scripts contain the best hyperparameter settings found in our experiments. For example,
+You can run the bash scripts in the `schedulers` directory for each of the five algorithms. These scripts run a 2v2 scenario with one defense agent being trained. For example,
 ````
 mkdir logs
 ./schedulers/figar_sarsa.sh
 ````
 You will find the results in the newly created `logs` directory.
+
+Scripts to run a 3v3 scenario with two defense agents being trained can be found in `schedulers3v3` directory.
 
 ## Report
 
